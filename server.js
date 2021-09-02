@@ -33,28 +33,28 @@ const obj = require("./token");
 
 //create the post request
 app.post("/login",(req,res)=>{
-    miniproject.connect(process.env.CONNECTION_URL,(err,connection)=>{
+    miniproject.connect("mongodb+srv://admin:admin@miniprojectdb.nzphu.mongodb.net/rjs-8pm-miniproject?retryWrites=true&w=majority",(err,connection)=>{
             if(err) throw err;
             else{
-                const db = connection.db(process.env.DATABASE_NAME);
-                db.collection(process.env.COLLECTION_NAME)
+                const db = connection.db("rjs-8pm-miniproject");
+                db.collection("user_details")
                 .find({"email":req.body.email,"password":req.body.password})
                 .toArray((err,array)=>{
                     if(err) throw err;
                     else{
-                        let label = process.env.RESPONSE_LABEL;
-                        let success = process.env.SUCCESS_RESPONSE;
-                        let failure = process.env.FAILURE_RESPONSE;
+                        // let label = process.env.RESPONSE_LABEL;
+                        // let success = process.env.SUCCESS_RESPONSE;
+                        // let failure = process.env.FAILURE_RESPONSE;
                         if(array.length>0){
                             //generate the token
                             obj.token = jsonwebtoken.sign(
                                  {"email":req.body.email,"password":req.body.password},
-                                 process.env.SECRETE_KEY,
+                                 "ashokit",
                                  {expiresIn:'30d'}
                             );
-                            res.status(200).send({ [label]:success, "token":obj.token });
+                            res.status(200).send({ login:"success", "token":obj.token });
                         }else{
-                            res.send({ [label]: failure });
+                            res.send({ login: "failure" });
                         }
                     }
                 })
@@ -78,10 +78,10 @@ const checkTokens = (req,res,next)=>{
 app.get("/category/:item",[checkTokens],(req,res)=>{
         //item => Washing_Machine / acs / cameras
         
-        miniproject.connect(process.env.CONNECTION_URL,(err,connection)=>{
+        miniproject.connect("mongodb+srv://admin:admin@miniprojectdb.nzphu.mongodb.net/rjs-8pm-miniproject?retryWrites=true&w=majority",(err,connection)=>{
             if(err) throw err;
             else{
-                const db = connection.db(process.env.DATABASE_NAME);
+                const db = connection.db("rjs-8pm-miniproject");
                 db.collection(req.params.item).find().toArray((err,array)=>{
                     if(err) throw err;
                     else{
@@ -101,18 +101,3 @@ let port = process.env.PORT || 1234;
 app.listen(port,()=>{
     console.log("server listening the port number 8080");
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
